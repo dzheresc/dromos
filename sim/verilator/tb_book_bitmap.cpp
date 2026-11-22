@@ -8,7 +8,7 @@
 #include <memory>
 #include <set>
 
-#include "Vbook_bitmap.h"
+#include TB_HEADER
 #include "dromos/common.hpp"
 #include "verilated.h"
 #if VM_TRACE_FST
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     const bool trace = argc > 3 && std::strcmp(argv[3], "+trace") == 0;
 
     auto ctx = std::make_unique<VerilatedContext>();
-    auto dut = std::make_unique<Vbook_bitmap>(ctx.get());
+    auto dut = std::make_unique<Vtb_book_bitmap>(ctx.get());
 #if VM_TRACE_FST
     std::unique_ptr<VerilatedFstC> tfp;
     if (trace) {
