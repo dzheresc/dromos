@@ -1,0 +1,19 @@
+# Toolchain for the C++ reference engine and the Verilator testbenches.
+#   docker build -t dromos-sim -f docker/Dockerfile.sim .
+#   docker run --rm -v "$PWD":/src -w /src dromos-sim scripts/test.sh
+FROM ubuntu:24.04
+
+ARG VERILATOR_TAG=v5.030
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential cmake ninja-build git ca-certificates \
+        autoconf flex bison libfl-dev help2man perl python3 ccache numactl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --depth 1 -b ${VERILATOR_TAG} https://github.com/verilator/verilator.git /tmp/verilator \
+    && cd /tmp/verilator && autoconf && ./configure --prefix=/opt/verilator \
+    && make -j"$(nproc)" && make install && rm -rf /tmp/verilator
+
+ENV PATH=/opt/verilator/bin:$PATH \
+    VERILATOR_ROOT=/opt/verilator/share/verilator
