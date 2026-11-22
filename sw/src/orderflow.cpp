@@ -49,11 +49,13 @@ Ingress OrderFlow::next() {
     std::uint32_t acc = 0;
 
     if (r < (acc += cfg_.p_bad)) {
-        // Malformed: unknown type, bad symbol, zero qty, or out of window.
+        // Malformed: unknown type, bad symbol, zero qty, out of window, bad side or bad tif.
         std::uint16_t session = 0;
         Msg m = make_add(sym, false, session);
         in.session = session;
-        switch (rng_.below(4)) {
+        switch (rng_.below(6)) {
+            case 4: m.bytes[1] = std::uint8_t(2 + rng_.below(254)); break;  // side
+            case 5: m.bytes[12] = std::uint8_t(2 + rng_.below(254)); break; // tif
             case 0: m.bytes[0] = 0x7F; break;
             case 1: { auto n = m.as<NewOrder>(); n.symbol = std::uint16_t(cfg_.num_symbols + 3); m = Msg::from(n); break; }
             case 2: { auto n = m.as<NewOrder>(); n.qty = 0; m = Msg::from(n); break; }

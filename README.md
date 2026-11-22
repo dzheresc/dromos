@@ -6,7 +6,7 @@ Every result is checked against a C++ reference engine. The hardware is right on
 
 ## What it does today
 
-The C++ reference engine, its cross-check model and the seeded order generator are in place (milestone M1), with the first RTL block (`book_bitmap`, best-price search) passing its Verilator testbench. The boards come next.
+The C++ reference engine, its cross-check model and the seeded order generator are in place (milestone M1). The order book RTL (`book_core`: order pool, level FIFOs, bitmap best-price search, matching) matches the reference engine message for message in Verilator (milestone M2). The boards come next.
 
 - [Design plan](docs/design-plan.md): architecture, protocol, book structures, milestones
 - [Building and testing](docs/BUILDING.md)

@@ -26,6 +26,21 @@
     ./build/crosscheck --seeds 10 --msgs 1000000
     ./build/bench 5000000
 
+## RTL testbenches
+
+`tb_book_core*` drive `book_core` and `RefEngine` with the same input and compare
+every output event. The variants differ only in pool size (65536, 64, 1024, 2).
+
+    B=build/sim/verilator
+    $B/tb_book_core --seeds 50 --msgs 200000             # random flow, full pool
+    $B/tb_book_core_small --seeds 50 --ready 50          # 64 slots, out_ready 50% of cycles
+    DROMOS_RECORD=directed.rec ./build/test_engine       # record the directed scenarios
+    $B/tb_book_core_directed --replay directed.rec       # and replay them through the RTL
+    $B/tb_book_core --seeds 1 --msgs 100 --trace         # writes tb_book_core.fst
+
+Each run ends with a coverage table: event type against byte 1 (side, reject
+or cancel reason, liquidity).
+
 ## FPGA builds
 
     NUMA_NODE=0 scripts/vivado.sh ku5p gen_ip.tcl     # once

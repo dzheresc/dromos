@@ -1,6 +1,7 @@
 // Directed tests for the reference engines. Every scenario runs on both
 // RefEngine and NaiveEngine and also checks that their outputs are identical.
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <string>
@@ -31,6 +32,18 @@ namespace {
 
 constexpr std::uint32_t kBase = 1000;
 
+// With DROMOS_RECORD=<file>, every scenario's inbound stream is written out so
+// the RTL testbench can replay it (tb_book_core --replay <file>). Format:
+//   R <configured symbols> <base ticks>     start of a scenario (fresh engine)
+//   M <session> <ts_ns> <64 hex chars>      one inbound message
+std::FILE* recorder() {
+    static std::FILE* f = [] {
+        const char* path = std::getenv("DROMOS_RECORD");
+        return path ? std::fopen(path, "w") : nullptr;
+    }();
+    return f;
+}
+
 // Runs the same inbound messages through both engines.
 struct Pair {
     explicit Pair(EngineConfig cfg = {.num_symbols = 4, .levels = 4096, .pool_size = 1024})
@@ -39,10 +52,16 @@ struct Pair {
             ref.configure_symbol(s, kBase);
             naive.configure_symbol(s, kBase);
         }
+        if (auto* f = recorder()) std::fprintf(f, "R 2 %u\n", kBase);
     }
 
     std::vector<OutEvent> send(std::uint16_t session, const Msg& m) {
         Ingress in{m, session, ++seq, seq * 10};
+        if (auto* f = recorder()) {
+            std::fprintf(f, "M %u %llu ", unsigned(session), (unsigned long long)in.ts_ns);
+            for (auto b : m.bytes) std::fprintf(f, "%02x", b);
+            std::fprintf(f, "\n");
+        }
         VectorSink a, b;
         ref.on_message(in, a);
         naive.on_message(in, b);
@@ -264,5 +283,6 @@ int main() {
         std::printf("%-32s %s\n", t.name, g_failures == before ? "ok" : "FAILED");
     }
     std::printf("%d checks, %d failures\n", g_checks, g_failures);
+    if (auto* f = recorder()) std::fclose(f);
     return g_failures ? 1 : 0;
 }
