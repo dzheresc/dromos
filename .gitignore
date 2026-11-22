@@ -1,0 +1,13 @@
+build*/
+*.fst
+*.vcd
+.Xil/
+*.jou
+*.log
+*.str
+webtalk*
+usage_statistics_webtalk.*
+boards/*/build/
+boards/*/build_v*/
+boards/*/.cache/
+.import.tar
