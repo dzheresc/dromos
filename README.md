@@ -9,6 +9,7 @@ Every result is checked against a C++ reference engine. The hardware is right on
 The C++ reference engine, its cross-check model and the seeded order generator are in place (milestone M1). The order book RTL (`book_core`: order pool, level FIFOs, bitmap best-price search, matching) matches the reference engine message for message in Verilator (milestone M2). The boards come next.
 
 - [Design plan](docs/design-plan.md): architecture, protocol, book structures, milestones
+- [Alternative: 25G links, XCKU3P generator](docs/alt-25g-ku3p.md)
 - [Building and testing](docs/BUILDING.md)
 - [Boards](boards/README.md)
 
